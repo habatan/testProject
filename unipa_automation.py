@@ -48,7 +48,7 @@ def main():
       pass
    div_class = driver.find_elements_by_class_name('alignRight')
    # 今の段階だと特定の課題のみしか抜き出せない
-   return div_class
+   print(div_class)
 
 if __name__ == "__main__":
    main()
