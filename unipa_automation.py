@@ -2,6 +2,7 @@
 # このファイルを編集する
 # ユニパの情報取得を自動化していく
 # 事前にselenium一式とchromedriverが必要
+from requests.api import head
 from selenium.webdriver import Chrome,ChromeOptions
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -9,6 +10,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC 
 import time 
+import requests 
+import os 
+import dotenv
+# カレントディレクトリのenvfileを使用
+dotenv.load_dotenv()
 
 ############編集を行う###############
 UserID = "{ userid }"
@@ -49,6 +55,23 @@ def main():
    div_class = driver.find_elements_by_class_name('alignRight')
    # 今の段階だと特定の課題のみしか抜き出せない
    print(div_class)
+
+# envfileから情報を入手することを想定
+token = os.environ["TOKEN"]
+
+# linenotify通知関数
+def sendMessage(msg:str)->str:
+   # linenotfy通知系apiをたたく
+   URL="https://notify-api.line.me/api/notify"
+   payload = {
+      "message":msg
+   }
+   headers={
+      "Aouthorization":"Bearer "+token
+   }
+   response=requests.post(URL,params=payload,headers=headers)
+   return response.text
+
 
 if __name__ == "__main__":
    main()
