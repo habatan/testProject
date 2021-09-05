@@ -1,7 +1,7 @@
 # testProject
 
-We try to make something interesting, fun, and wonderful. (maybe)\
-pythonを用いてプロジェクトを試しちゃう
+unipaの新着課題内容や課題数などをlinenorifyから取得できるようにする
+(最終linebotにしてもいいかも)
 
 ## usage
 
