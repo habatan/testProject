@@ -5,10 +5,10 @@ pythonを用いてプロジェクトを試しちゃう
 
 ## usage
 
-infoフォルダーに環境ファイルを設置
-USERID="UNIPAのログインユーザーID"
-PASS="UNIPAのログインパスワード"
-TOKEN＝"LINENotifyの"アクセストークン"
+infoフォルダーに環境ファイルを設置\
+USERID="UNIPAのログインユーザーID"\
+PASS="UNIPAのログインパスワード"\
+TOKEN＝"LINENotifyの"アクセストークン"\
 
 python unipa_automation.py
 
