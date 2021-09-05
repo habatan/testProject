@@ -14,7 +14,7 @@ python unipa_automation.py
 
 ## License
 
-NYSL
+NYSL\\
 A. 本ソフトウェアは Everyone'sWare です。このソフトを手にした一人一人が、
    ご自分の作ったものを扱うのと同じように、自由に利用することが出来ます。
 
