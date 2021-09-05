@@ -9,6 +9,7 @@ from selenium.webdriver.common.by import By
 # 例外処理用の便利なライブラリ
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC 
+import datetime
 import time 
 import requests 
 import os 
@@ -16,10 +17,9 @@ import dotenv
 # カレントディレクトリのenvfileを使用
 dotenv.load_dotenv("./info/.env")
 
-############編集を行う###############
-UserID = "{ userid }"
-PassWord = "{ pass }"
-####################################
+# sysを使ってuserIDとpassはターミナルの引数にしてもええかも(もしくはjsonファイルかtxtファイルにする)
+UserID = os.environ["USERID"]
+PassWord = os.environ["PASS"]
 
 # unipaのURL
 URL = "https://unipa.u-hyogo.ac.jp/uprx/"
@@ -41,20 +41,21 @@ def main():
    botton.send_keys(Keys.RETURN)
    time.sleep(2)
 
-   # 掲示板を探しに行く
-   WebDriverWait(driver,timeout=15).until(EC.presence_of_element_located((By.XPATH,'//*[@id="menuForm:mainMenu"]/ul/li[1]/a')))
-   driver.find_element_by_xpath('//*[@id="menuForm:mainMenu"]/ul/li[1]/a').click()
-   WebDriverWait(driver,timeout=15).until(EC.presence_of_element_located((By.XPATH,'//*[@id="funcForm:tabArea"]/ul/li[5]/a')))
-   driver.find_element_by_xpath('//*[@id="funcForm:tabArea"]/ul/li[5]/a').click()
+   # クラスプロファイルを探索しに行く
+   driver.find_element_by_xpath('//*[@id="funcForm:j_idt361:j_idt518:j_idt524"]/p').click()
 
-   # 25件を超える場合に全表示を使う
-   if driver.find_element_by_xpath('//*[@id="funcForm:tabArea:4:j_idt403"]'):
-      driver.find_element_by_xpath('//*[@id="funcForm:tabArea:4:j_idt403"]').click()
-   else:
-      pass
-   div_class = driver.find_elements_by_class_name('alignRight')
-   # 今の段階だと特定の課題のみしか抜き出せない
-   print(div_class)
+   # 事前に今日の曜日を確認する必要がある
+   d = datetime.today().weekday()+1
+   count_class=[]
+   # 曜日とscccelectorの規則を確認
+   for c in range(1,6):
+      if c == d:
+         continue
+      driver.find_element_by_css_selector(f'#funcLeftForm\:yobiPanel{c}_toggler > span').click()
+      classes = driver.find_elements_by_css_selector(f'#funcLeftForm\:yobiPanel{c}_content > div.classList')
+      count_class.append(len(classes))
+      time.sleep(1)
+
 
 # envfileから情報を入手することを想定
 token = os.environ["TOKEN"]
