@@ -14,7 +14,7 @@ import requests
 import os 
 import dotenv
 # カレントディレクトリのenvfileを使用
-dotenv.load_dotenv()
+dotenv.load_dotenv("./info/.env")
 
 ############編集を行う###############
 UserID = "{ userid }"
