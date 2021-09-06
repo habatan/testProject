@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 # 例外処理用の便利なライブラリ
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC 
-import datetime
+from datetime import datetime
 import time 
 import requests 
 import os 
@@ -44,6 +44,21 @@ def main():
 
    # クラスプロファイルを探索しに行く
    driver.find_element_by_xpath('//*[@id="funcForm:j_idt361:j_idt518:j_idt524"]/p').click()
+   
+   # 事前に今日の曜日を確認する必要がある
+   # 0:月曜日
+   d = datetime.today().weekday()+1
+
+   count_class=[]
+   # 曜日とscccelectorの規則を確認
+   for c in range(1,6):
+      if c == d:
+            continue
+      # すべての授業のバーを下に開く
+      driver.find_element_by_css_selector(f'#funcLeftForm\:yobiPanel{c}_toggler > span').click()
+      classes = driver.find_elements_by_css_selector(f'#funcLeftForm\:yobiPanel{c}_content > div.classList')
+      count_class.append(len(classes))
+      time.sleep(1)
 
    # 次の授業が押せなくなったら終了
    while True:
@@ -73,13 +88,17 @@ def main():
          except:
                break
          # 選択した講義の課題が残っているのかを調べる
-      
-      #　次の授業があるかを判定
-      if driver.find_elements_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right') == []:
-         break
-      # 次の授業を押す
-      driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right').click()
 
+      
+          #　次の授業があるかを判定
+          if driver.find_elements_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right') == []:
+             break
+          # 次の授業を押す
+          driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right').click()
+          work_names = driver.find_elements_by_class_name('ui-commandlink ui-widget')
+
+          #次の授業を押す
+          driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right').click()
 
 
 # envfileから情報を入手することを想定
