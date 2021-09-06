@@ -44,6 +44,21 @@ def main():
 
    # クラスプロファイルを探索しに行く
    driver.find_element_by_xpath('//*[@id="funcForm:j_idt361:j_idt518:j_idt524"]/p').click()
+   
+   # 事前に今日の曜日を確認する必要がある
+   # 0:月曜日
+   d = datetime.today().weekday()+1
+
+   count_class=[]
+   # 曜日とscccelectorの規則を確認
+   for c in range(1,6):
+      if c == d:
+            continue
+      # すべての授業のバーを下に開く
+      driver.find_element_by_css_selector(f'#funcLeftForm\:yobiPanel{c}_toggler > span').click()
+      classes = driver.find_elements_by_css_selector(f'#funcLeftForm\:yobiPanel{c}_content > div.classList')
+      count_class.append(len(classes))
+      time.sleep(1)
 
    #繰り返し方は要注意
    for _ in range(2):
