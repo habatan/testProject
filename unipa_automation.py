@@ -14,6 +14,7 @@ import time
 import requests 
 import os 
 import dotenv
+import re
 # カレントディレクトリのenvfileを使用
 dotenv.load_dotenv("./info/.env")
 
@@ -44,17 +45,38 @@ def main():
    # クラスプロファイルを探索しに行く
    driver.find_element_by_xpath('//*[@id="funcForm:j_idt361:j_idt518:j_idt524"]/p').click()
 
-   # 事前に今日の曜日を確認する必要がある
-   d = datetime.today().weekday()+1
-   count_class=[]
-   # 曜日とscccelectorの規則を確認
-   for c in range(1,6):
-      if c == d:
-         continue
-      driver.find_element_by_css_selector(f'#funcLeftForm\:yobiPanel{c}_toggler > span').click()
-      classes = driver.find_elements_by_css_selector(f'#funcLeftForm\:yobiPanel{c}_content > div.classList')
-      count_class.append(len(classes))
-      time.sleep(1)
+   #繰り返し方は要注意
+   for _ in range(2):
+      # 講義名を取得する
+      lecture = driver.find_element_by_class_name('cpTgtName').text
+      lecture = re.search(r'[0-9]+(.+) ((.+))', lecture).group(1)
+      # 何の科目か知りたい場合
+      # subject = re.search(r'[0-9]+(.+) ((.+))', lecture).group(2)
+
+      # 課題提出状況を確認する
+      elements = driver.find_elements_by_css_selector(".ui-button-text.ui-c")
+      # もっとスマートな方法があれば...
+      for element in elements:
+         if element.text == '課題提出':
+               element.click()
+               break
+
+      # 2ページ以上の可能性があるので考慮する必要がある
+      i = 0
+      while True:
+         i += 1
+         try:
+               driver.find_element_by_xpath(f'//*[@id="funcForm:gakKdiTstList_paginator_bottom"]/span[4]/span[{i}]').click()
+         except:
+               break
+         # 選択した講義の課題が残っているのかを調べる
+         work_names = driver.find_elements_by_class_name('ui-commandlink ui-widget')
+         for work_name in work_names:
+               print(work_name.text)
+
+
+      # 次の授業を押す
+      driver.find_element_by_xpath('//*[@id="functionHeaderForm:j_idt144"]/span[2]').click()
 
 
 # envfileから情報を入手することを想定
