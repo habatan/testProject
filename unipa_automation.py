@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 # 例外処理用の便利なライブラリ
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC 
-import datetime
+from datetime import datetime
 import time 
 import requests 
 import os 
@@ -71,8 +71,6 @@ def main():
                break
          # 選択した講義の課題が残っているのかを調べる
          work_names = driver.find_elements_by_class_name('ui-commandlink ui-widget')
-         for work_name in work_names:
-               print(work_name.text)
                
       #次の授業を押す
       driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right').click()
