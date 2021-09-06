@@ -46,7 +46,7 @@ def main():
    driver.find_element_by_xpath('//*[@id="funcForm:j_idt361:j_idt518:j_idt524"]/p').click()
 
    # 次の授業が押せなくなったら終了
-   while driver.find_elements_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right') != []:
+   while True:
       time.sleep(1)
       # 講義名を取得する
       lecture = driver.find_element_by_class_name('cpTgtName').text
@@ -73,8 +73,10 @@ def main():
          except:
                break
          # 選択した講義の課題が残っているのかを調べる
-
-
+      
+      #　次の授業があるかを判定
+      if driver.find_elements_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right') == []:
+         break
       # 次の授業を押す
       driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right').click()
 
