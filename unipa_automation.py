@@ -73,10 +73,9 @@ def main():
          work_names = driver.find_elements_by_class_name('ui-commandlink ui-widget')
          for work_name in work_names:
                print(work_name.text)
-
-
-      # 次の授業を押す
-      driver.find_element_by_xpath('//*[@id="functionHeaderForm:j_idt144"]/span[2]').click()
+               
+      #次の授業を押す
+      driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right').click()
 
 
 # envfileから情報を入手することを想定
