@@ -45,11 +45,13 @@ def main():
    # クラスプロファイルを探索しに行く
    driver.find_element_by_xpath('//*[@id="funcForm:j_idt361:j_idt518:j_idt524"]/p').click()
 
-   #繰り返し方は要注意
-   for _ in range(2):
+   # 次の授業が押せなくなったら終了
+   while driver.find_elements_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right') != []:
+      time.sleep(1)
       # 講義名を取得する
       lecture = driver.find_element_by_class_name('cpTgtName').text
       lecture = re.search(r'[0-9]+(.+) ((.+))', lecture).group(1)
+      print(lecture)
       # 何の科目か知りたい場合
       # subject = re.search(r'[0-9]+(.+) ((.+))', lecture).group(2)
 
@@ -64,19 +66,18 @@ def main():
       # 2ページ以上の可能性があるので考慮する必要がある
       i = 0
       while True:
+         time.sleep(1)
          i += 1
          try:
                driver.find_element_by_xpath(f'//*[@id="funcForm:gakKdiTstList_paginator_bottom"]/span[4]/span[{i}]').click()
          except:
                break
          # 選択した講義の課題が残っているのかを調べる
-         work_names = driver.find_elements_by_class_name('ui-commandlink ui-widget')
-         for work_name in work_names:
-               print(work_name.text)
 
 
       # 次の授業を押す
-      driver.find_element_by_xpath('//*[@id="functionHeaderForm:j_idt144"]/span[2]').click()
+      driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right').click()
+
 
 
 # envfileから情報を入手することを想定
