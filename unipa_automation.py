@@ -90,15 +90,11 @@ def main():
          # 選択した講義の課題が残っているのかを調べる
 
       
-          #　次の授業があるかを判定
-          if driver.find_elements_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right') == []:
-             break
-          # 次の授業を押す
-          driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right').click()
-          work_names = driver.find_elements_by_class_name('ui-commandlink ui-widget')
-
-          #次の授業を押す
-          driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right').click()
+         #　次の授業があるかを判定
+         if driver.find_elements_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right') == []:
+            break
+         # 次の授業を押す
+         driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right').click()
 
 
 # envfileから情報を入手することを想定
