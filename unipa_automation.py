@@ -9,12 +9,13 @@ from selenium.webdriver.common.by import By
 # 例外処理用の便利なライブラリ
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC 
-from datetime import datetime
+import datetime
 import time 
 import requests 
 import os 
 import dotenv
 import re
+import pandas as pd
 # カレントディレクトリのenvfileを使用
 dotenv.load_dotenv("./info/.env")
 
@@ -28,6 +29,8 @@ URL = "https://unipa.u-hyogo.ac.jp/uprx/"
 def main():
    options = ChromeOptions()
    options.headless = True
+   # ポップアップメッセージを削除するため
+   options.add_experimental_option('excludeSwitches', ['enable-logging'])
    # chromedriverを作成
    driver = Chrome(options=options)
    driver.get(URL)
@@ -42,23 +45,12 @@ def main():
    botton.send_keys(Keys.RETURN)
    time.sleep(2)
 
+   # 曜日を取得
+   week = driver.find_element_by_class_name('dateDisp').text
+   week = re.search(r'\((.+)\)', week).group(1)
+
    # クラスプロファイルを探索しに行く
    driver.find_element_by_xpath('//*[@id="funcForm:j_idt361:j_idt518:j_idt524"]/p').click()
-   
-   # 事前に今日の曜日を確認する必要がある
-   # 0:月曜日
-   d = datetime.today().weekday()+1
-
-   count_class=[]
-   # 曜日とscccelectorの規則を確認
-   for c in range(1,6):
-      if c == d:
-            continue
-      # すべての授業のバーを下に開く
-      driver.find_element_by_css_selector(f'#funcLeftForm\:yobiPanel{c}_toggler > span').click()
-      classes = driver.find_elements_by_css_selector(f'#funcLeftForm\:yobiPanel{c}_content > div.classList')
-      count_class.append(len(classes))
-      time.sleep(1)
 
    # 次の授業が押せなくなったら終了
    while True:
@@ -80,6 +72,7 @@ def main():
 
       # 2ページ以上の可能性があるので考慮する必要がある
       i = 0
+      dfs = []
       while True:
          time.sleep(1)
          i += 1
@@ -87,14 +80,30 @@ def main():
                driver.find_element_by_xpath(f'//*[@id="funcForm:gakKdiTstList_paginator_bottom"]/span[4]/span[{i}]').click()
          except:
                break
-         # 選択した講義の課題が残っているのかを調べる
-
+         # 選択した講義の課題が残っているのかを調べるためにデータフレームにする
+         table = driver.find_element_by_css_selector("#funcForm\:gakKdiTstList > div.ui-datatable-tablewrapper > table")
+         html = table.get_attribute('outerHTML')
+         df_table = pd.read_html(html)
+         dfs.append(df_table[0])
+      # データフレームから必要な情報を取得する
+      if len(dfs) >= 2:
+         df = pd.concat(dfs)
+      elif len(dfs) == 1:
+         df = dfs[0]
+      else:
+        df = pd.DataFrame(columns = ['課題グループ名', '課題名', '種別', '承認状態', 'コース', '目次', '課題提出開始日時', '課題提出終了日時',
+       '提出方法', 'ステータス', '未提出', '提出回数', '再提出回数', '再提出期限', '提出日時', '点数', '未確認',
+       'Good', 'No good', '他の提出者'])
+      # 未提出の課題数を取得する
+      print(len(df[df['未提出'] == "○"]))
+    
       
-         #　次の授業があるかを判定
-         if driver.find_elements_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right') == []:
-            break
-         # 次の授業を押す
-         driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right').click()
+      #　次の授業があるかを判定
+      if driver.find_elements_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right') == []:
+         break
+      # 次の授業を押す
+      driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right').click()
+
 
 
 # envfileから情報を入手することを想定
