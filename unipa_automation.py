@@ -26,7 +26,7 @@ URL = "https://unipa.u-hyogo.ac.jp/uprx/"
 # driverのオプション設定
 def main():
    options = ChromeOptions()
-   options.headless = False
+   options.headless = True
    # chromedriverを作成
    driver = Chrome(options=options)
    driver.get(URL)
@@ -61,15 +61,14 @@ def main():
       name = driver.find_element_by_css_selector('.cpTgtName').text[6:-9]
       if name not in class_name:
          class_name.append(name)
-         print(name)
          # 未提出選択をclick
          driver.find_element_by_css_selector('.ui-chkbox-icon.ui-icon.ui-icon-blank.ui-c').click()
          # 検索ボタンをクリック
          driver.find_element_by_css_selector('.ui-button.ui-widget.ui-state-default.ui-corner-all.ui-button-text-only.btnSearch.btnAltColorSearch.btnL').click()
          # 残りの課題数を確認
-         time.sleep(1)
+         time.sleep(1.5)
          num_task = driver.find_elements_by_css_selector(".ui-paginator-current")
-         print(num_task[1].text)
+         print(name," : ",num_task[1].text)
          # dataframeの作成
          html= driver.page_source
          df = pd.read_html(html)
