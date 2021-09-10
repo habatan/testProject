@@ -96,6 +96,8 @@ def main():
          # 最後は"進むボタン"->ラスト切り替え
          else:
             btn = True
+            flag=2
+
    # ここからdataframeの整形
    all_df = pd.concat(df_list)
    rest_task_df=all_df[(all_df["課題名"]!="対象データがありません。")&(all_df["未提出"]=="○")]
@@ -107,7 +109,7 @@ def main():
       start.append(f'{v["課題名"]} : {v["課題提出終了日時"]}')
    text="\n".join(start)
    # まとめたtextを送信
-   sendMessage(text)
+   print(sendMessage(text))
 
       
 # linenotify通知関数
