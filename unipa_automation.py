@@ -13,7 +13,6 @@ import time
 import requests 
 import os 
 import dotenv
-import re
 import pandas as pd
 # カレントディレクトリのenvfileを使用
 dotenv.load_dotenv("./info/.env")
