@@ -19,14 +19,11 @@ import pandas as pd
 dotenv.load_dotenv("./info/.env")
 
 # sysを使ってuserIDとpassはターミナルの引数にしてもええかも(もしくはjsonファイルかtxtファイルにする)
-UserID = os.environ["USERID"]
-PassWord = os.environ["PASS"]
-token = os.environ["TOKEN"]
 
 # unipaのURL
 URL = "https://unipa.u-hyogo.ac.jp/uprx/"
 # driverのオプション設定
-def main():
+def getInfoFromUnipa(userID:str,PassWord:str):
    options = ChromeOptions()
    options.headless = True
    # ポップアップメッセージを削除するため
@@ -110,81 +107,5 @@ def main():
    dfs = pd.concat(df_list)
    rest_task_df=dfs[(dfs["課題名"]!="対象データがありません。")&(dfs["未提出"]=="○")]
    rest_task_df.sort_values("課題提出終了日時")
-
-#    # 次の授業が押せなくなったら終了
-#    while True:
-#       time.sleep(1)
-#       # 講義名を取得する
-#       lecture = driver.find_element_by_class_name('cpTgtName').text
-#       lecture = re.search(r'[0-9]+(.+) ((.+))', lecture).group(1)
-#       print(lecture)
-#       # 何の科目か知りたい場合
-#       # subject = re.search(r'[0-9]+(.+) ((.+))', lecture).group(2)
-
-#       # 課題提出状況を確認する
-#       elements = driver.find_elements_by_css_selector(".ui-button-text.ui-c")
-#       # もっとスマートな方法があれば...
-#       for element in elements:
-#          if element.text == '課題提出':
-#                element.click()
-#                break
-
-#       # 2ページ以上の可能性があるので考慮する必要がある
-#       i = 0
-#       dfs = []
-#       while True:
-#          time.sleep(1)
-#          i += 1
-#          try:
-#                driver.find_element_by_xpath(f'//*[@id="funcForm:gakKdiTstList_paginator_bottom"]/span[4]/span[{i}]').click()
-#          except:
-#                break
-#          # 選択した講義の課題が残っているのかを調べるためにデータフレームにする
-#          table = driver.find_element_by_css_selector("#funcForm\:gakKdiTstList > div.ui-datatable-tablewrapper > table")
-#          html = table.get_attribute('outerHTML')
-#          df_table = pd.read_html(html)
-#          dfs.append(df_table[0])
-#       # データフレームから必要な情報を取得する
-#       if len(dfs) >= 2:
-#          df = pd.concat(dfs)
-#       elif len(dfs) == 1:
-#          df = dfs[0]
-#       else:
-#         df = pd.DataFrame(columns = ['課題グループ名', '課題名', '種別', '承認状態', 'コース', '目次', '課題提出開始日時', '課題提出終了日時',
-#        '提出方法', 'ステータス', '未提出', '提出回数', '再提出回数', '再提出期限', '提出日時', '点数', '未確認',
-#        'Good', 'No good', '他の提出者'])
-#       # 未提出の課題数を取得する
-#       print(len(df[df['未提出'] == "○"]))
-    
-      
-#       #　次の授業があるかを判定
-#       if driver.find_elements_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right') == []:
-#          break
-#       # 次の授業を押す
-#       driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right').click()
-
-   # とりあえず送れるようにする
-   start = ["課題名 : 課題提出日時"]
-   for i,v in rest_task_df.iterrows():
-      start.append(f'{v["課題名"]} : {v["課題提出終了日時"]}')
-   text="\n".join(start)
-   # まとめたtextを送信
-   print(sendMessage(text))
-
-      
-# linenotify通知関数
-def sendMessage(msg:str)->str:
-   # linenotfy通知系apiをたたく
-   URL="https://notify-api.line.me/api/notify"
-   payload = {
-      "message":msg
-   }
-   headers={
-      "Authorization":"Bearer "+token
-   }
-   response=requests.post(URL,params=payload,headers=headers)
-   return response.text
-
-
-if __name__ == "__main__":
-   main()
+   
+   return rest_task_df
