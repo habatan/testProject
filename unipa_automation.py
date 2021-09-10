@@ -58,7 +58,7 @@ def main():
    while btn:
       time.sleep(1)
       # 授業名取得
-      name = driver.find_element_by_css_selector('.cpTgtName').text[6:-9]
+      name = driver.find_element_by_css_selector('.cpTgtName').text[6:-9].replace("\n","")
       if name not in class_name:
          class_name.append(name)
          # 未提出選択をclick
@@ -68,7 +68,6 @@ def main():
          # 残りの課題数を確認
          time.sleep(1.5)
          num_task = driver.find_elements_by_css_selector(".ui-paginator-current")
-         print(name," : ",num_task[1].text)
          # dataframeの作成
          html= driver.page_source
          df = pd.read_html(html)
@@ -77,6 +76,7 @@ def main():
          rest_task.append(num_task[1].text)
       # ラストの場合終了
       if flag ==2:
+         driver.close()
          break
       # 次のページへ遷移
       btn.click()
@@ -96,8 +96,6 @@ def main():
          # 最後は"進むボタン"->ラスト切り替え
          else:
             btn = True
-            flag =2       
-         
    # ここからdataframeの整形
    all_df = pd.concat(df_list)
    rest_task_df=all_df[(all_df["課題名"]!="対象データがありません。")&(all_df["未提出"]=="○")]
@@ -120,7 +118,7 @@ def sendMessage(msg:str)->str:
       "message":msg
    }
    headers={
-      "Aouthorization":"Bearer "+token
+      "Authorization":"Bearer "+token
    }
    response=requests.post(URL,params=payload,headers=headers)
    return response.text
