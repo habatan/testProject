@@ -53,7 +53,7 @@ def getInfoFromUnipa(userID:str,PassWord:str):
       
    # 戻る段階(flag=0)進む段階(flag=1)とする
    flag = 0
-   # 戻るボタンの有無を確認
+   # 戻るボタンの有無を確認(月曜日の場合)
    try:
       btn=driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-left')
    except:
@@ -97,8 +97,13 @@ def getInfoFromUnipa(userID:str,PassWord:str):
       except:
          # 戻るボタン->進むボタン切り替え
          if flag==0:
-            flag = 1
-            btn = driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right')
+            # 進むボタンがあるか確認(金曜日か土曜日の場合)
+            try:
+               btn = driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right')
+               flag = 1
+             except:
+               driver.close()
+               break     
          # 最後は"進むボタン"->ラスト切り替え
          else:
             btn = True
