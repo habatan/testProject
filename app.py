@@ -1,6 +1,6 @@
 from enum import unique
+import os 
 from flask import Flask, request, abort
-import os
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -14,17 +14,18 @@ from linebot.models import (
     ButtonsTemplate, FollowEvent, MessageAction, RichMenu, RichMenuArea,
     RichMenuBounds, RichMenuSize, URIAction
 )
-import dotenv
 from unipa_automation import getInfoFromUnipa
-
+import dotenv
 app = Flask(__name__)
 # カレントディレクトリのenvfileを使用
-dotenv.load_dotenv("./info/.env")
+dotenv.load_dotenv("./_mane/.env")
 
 UserID = os.environ["USERID"]
 PassWord = os.environ["PASS"]
-line_bot_api = LineBotApi(os.environ["CHANNEL_ACCESS_TOKEN"])
-handler = WebhookHandler(os.environ["CHANNEL_SECRET"])
+# LineBotApi(os.environ["CHANNEL_ACCESS_TOKEN"])
+line_bot_api = LineBotApi()
+# WebhookHandler(os.environ["CHANNEL_SECRET"])
+handler = WebhookHandler()
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -78,4 +79,4 @@ def on_postback(event):
     return
     
 if __name__ == "__main__":
-    app.run(host="localhost", port=8000)
+    app.run(port=8000)
