@@ -1,7 +1,6 @@
 from enum import unique
 from flask import Flask, request, abort
-import os
-
+import os,dotenv
 from linebot import (
     LineBotApi, WebhookHandler
 )
@@ -14,17 +13,20 @@ from linebot.models import (
     ButtonsTemplate, FollowEvent, MessageAction, RichMenu, RichMenuArea,
     RichMenuBounds, RichMenuSize, URIAction
 )
-import dotenv
 from unipa_automation import getInfoFromUnipa
+# 環境ファイルの読み込み
+dotenv.load_dotenv("./info/.env")
 
 app = Flask(__name__)
 # カレントディレクトリのenvfileを使用
-dotenv.load_dotenv("./info/.env")
 
 UserID = os.environ["USERID"]
 PassWord = os.environ["PASS"]
-line_bot_api = LineBotApi(os.environ["CHANNEL_ACCESS_TOKEN"])
-handler = WebhookHandler(os.environ["CHANNEL_SECRET"])
+CHANNEL_ACCESS_TOKEN=os.environ["CHANNEL_ACCESS_TOKEN"]
+CHANNEl_SECRET=os.environ["CHANNEL_SECRET"]
+
+line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
+handler = WebhookHandler(CHANNEl_SECRET)
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -47,16 +49,14 @@ def callback():
 def send_infomation(event):
     user_id = event.source.user_id
     if event.message.text == '課題は？':
-        df_rest = getInfoFromUnipa(UserID=UserID, PassWord=PassWord)
-        # df_rest=df[(df["課題名"]!="対象データがありません。")&(df["未提出"]=="○")]
-        rest_homework=[]
-        for work_name in df_rest['講義名'].unique():
-            rest_homework.append(work_name)
-            rest_homework.append('----------')
-            for lecture_name in df_rest[df_rest['講義名']==work_name]["課題名"]:
-                rest_homework.append(lecture_name)
-            rest_homework.append('======================')
-        rest_homework = "\n".join(rest_homework)
+        df_rest = getInfoFromUnipa(userID=UserID, PassWord=PassWord)
+        rest_list=["残りの課題はこちらです"]
+        for _,v in df_rest.iterrows():
+            kadai = v["課題名"]
+            sime = v["課題提出終了日時"]
+            state=v["ステータス"]
+            rest_list.append(f"課題名 : {kadai}\n締切日 : {sime}\nステータス : {state}\n")
+        rest_homework="\n".join(rest_list)
         line_bot_api.push_message(
         to=user_id,
         messages=TextSendMessage(text=rest_homework)
@@ -78,4 +78,4 @@ def on_postback(event):
     return
     
 if __name__ == "__main__":
-    app.run(host="localhost", port=8000)
+    app.run(port=8000)
