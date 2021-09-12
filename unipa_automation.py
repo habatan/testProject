@@ -10,12 +10,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC 
 import pandas as pd 
 import time 
-import requests 
-import os 
-import dotenv
-
-
-# sysを使ってuserIDとpassはターミナルの引数にしてもええかも(もしくはjsonファイルかtxtファイルにする)
 
 # unipaのURL
 URL = "https://unipa.u-hyogo.ac.jp/uprx/"
@@ -31,14 +25,10 @@ def getInfoFromUnipa(userID:str,PassWord:str):
    input_element_key1 = driver.find_element_by_xpath('//*[@id="loginForm:userId"]')
    input_element_key2 = driver.find_element_by_xpath('//*[@id="loginForm:password"]')
    botton = driver.find_element_by_xpath('//*[@id="loginForm:loginButton"]')
-   input_element_key1.send_keys(UserID)
+   input_element_key1.send_keys(userID)
    input_element_key2.send_keys(PassWord)
    botton.send_keys(Keys.RETURN)
    time.sleep(2)
-
-   # 曜日を取得
-   week = driver.find_element_by_class_name('dateDisp').text
-   week = re.search(r'\((.+)\)', week).group(1)
 
    # クラスプロファイルを探索しに行く
    driver.find_element_by_xpath('//*[@id="funcForm:j_idt361:j_idt518:j_idt524"]/p').click()
@@ -65,7 +55,7 @@ def getInfoFromUnipa(userID:str,PassWord:str):
       # 授業名取得
       lecture = driver.find_element_by_css_selector('.cpTgtName').text[6:-9].replace("\n","")
       if lecture not in class_name:
-         class_name.append(recture)
+         class_name.append(lecture)
          # 未提出選択をclick
          driver.find_element_by_css_selector('.ui-chkbox-icon.ui-icon.ui-icon-blank.ui-c').click()
          # 検索ボタンをクリック
@@ -107,5 +97,5 @@ def getInfoFromUnipa(userID:str,PassWord:str):
    # ここからdataframeの整形
    dfs = pd.concat(df_list)
    rest_task_df=dfs[(dfs["課題名"]!="対象データがありません。")&(dfs["未提出"]=="○")]
-   rest_task_df.sort_values("課題提出終了日時")   
+   rest_task_df.sort_values("課題提出終了日時")  
    return rest_task_df
