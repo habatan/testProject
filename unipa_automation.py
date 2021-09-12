@@ -13,9 +13,7 @@ import time
 import requests 
 import os 
 import dotenv
-import pandas as pd
-# カレントディレクトリのenvfileを使用
-dotenv.load_dotenv("./info/.env")
+
 
 # sysを使ってuserIDとpassはターミナルの引数にしてもええかも(もしくはjsonファイルかtxtファイルにする)
 
@@ -24,9 +22,6 @@ URL = "https://unipa.u-hyogo.ac.jp/uprx/"
 # driverのオプション設定
 def getInfoFromUnipa(userID:str,PassWord:str):
    options = ChromeOptions()
-   options.headless = True
-   # ポップアップメッセージを削除するため
-   options.add_experimental_option('excludeSwitches', ['enable-logging'])
    # chromedriverを作成
    driver = Chrome(options=options)
    driver.get(URL)
@@ -55,10 +50,16 @@ def getInfoFromUnipa(userID:str,PassWord:str):
    class_name =[]
    rest_task = []
    df_list =[]
-   # 前の授業に戻るボタン
-   btn = driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-left')
+      
    # 戻る段階(flag=0)進む段階(flag=1)とする
    flag = 0
+   # 戻るボタンの有無を確認
+   try:
+      btn=driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-left')
+   except:
+      btn = driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right')
+      flag = 1
+
    while btn:
       time.sleep(1)
       # 授業名取得
@@ -101,10 +102,10 @@ def getInfoFromUnipa(userID:str,PassWord:str):
          # 最後は"進むボタン"->ラスト切り替え
          else:
             btn = True
-            flag = 2
+            flag=2
+            
    # ここからdataframeの整形
    dfs = pd.concat(df_list)
    rest_task_df=dfs[(dfs["課題名"]!="対象データがありません。")&(dfs["未提出"]=="○")]
-   rest_task_df.sort_values("課題提出終了日時")
-   
+   rest_task_df.sort_values("課題提出終了日時")   
    return rest_task_df
