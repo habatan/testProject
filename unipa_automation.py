@@ -13,8 +13,8 @@ import time
 import requests 
 import os 
 import dotenv
-# カレントディレクトリのenvfileを使用
-dotenv.load_dotenv("./info/.env")
+# カレントディレクトのenvfileを使用
+dotenv.load_dotenv("./_info/.env")
 
 # sysを使ってuserIDとpassはターミナルの引数にしてもええかも(もしくはjsonファイルかtxtファイルにする)
 UserID = os.environ["USERID"]
@@ -26,7 +26,7 @@ URL = "https://unipa.u-hyogo.ac.jp/uprx/"
 # driverのオプション設定
 def main():
    options = ChromeOptions()
-   options.headless = True
+   options.headless = False
    # chromedriverを作成
    driver = Chrome(options=options)
    driver.get(URL)
@@ -51,10 +51,16 @@ def main():
    class_name =[]
    rest_task = []
    df_list =[]
-   # 前の授業に戻るボタン
-   btn = driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-left')
+      
    # 戻る段階(flag=0)進む段階(flag=1)とする
    flag = 0
+   # 戻るボタンの有無を確認
+   try:
+      btn=driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-left')
+   except:
+      btn = driver.find_element_by_css_selector('.ui-button-icon-left.ui-icon.ui-c.fa.fa-fw.fa-caret-right')
+      flag = 1
+
    while btn:
       time.sleep(1)
       # 授業名取得
@@ -74,6 +80,7 @@ def main():
          df_list.append(df[1])
          # リストに押し込む
          rest_task.append(num_task[1].text)
+         print(name ," : ",num_task[1].text)
       # ラストの場合終了
       if flag ==2:
          driver.close()
@@ -103,27 +110,31 @@ def main():
    rest_task_df=all_df[(all_df["課題名"]!="対象データがありません。")&(all_df["未提出"]=="○")]
    rest_task_df.sort_values("課題提出終了日時")
 
-   # とりあえず送れるようにする
-   start = ["課題名 : 課題提出日時"]
-   for i,v in rest_task_df.iterrows():
-      start.append(f'{v["課題名"]} : {v["課題提出終了日時"]}')
-   text="\n".join(start)
-   # まとめたtextを送信
-   print(sendMessage(text))
+   if rest_task:
+      print("OK!")
+   return rest_task
+
+   # # とりあえず送れるようにする
+   # start = ["課題名 : 課題提出日時"]
+   # for i,v in rest_task_df.iterrows():
+   #    start.append(f'{v["課題名"]} : {v["課題提出終了日時"]}')
+   # text="\n".join(start)
+   # # まとめたtextを送信
+   # print(sendMessage(text))
 
       
 # linenotify通知関数
-def sendMessage(msg:str)->str:
-   # linenotfy通知系apiをたたく
-   URL="https://notify-api.line.me/api/notify"
-   payload = {
-      "message":msg
-   }
-   headers={
-      "Authorization":"Bearer "+token
-   }
-   response=requests.post(URL,params=payload,headers=headers)
-   return response.text
+# def sendMessage(msg:str)->str:
+#    # linenotfy通知系apiをたたく
+#    URL="https://notify-api.line.me/api/notify"
+#    payload = {
+#       "message":msg
+#    }
+#    headers={
+#       "Authorization":"Bearer "+token
+#    }
+#    response=requests.post(URL,params=payload,headers=headers)
+#    return response.text
 
 
 if __name__ == "__main__":
