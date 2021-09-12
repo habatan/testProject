@@ -23,6 +23,7 @@ URL = "https://unipa.u-hyogo.ac.jp/uprx/"
 def getInfoFromUnipa(userID:str,PassWord:str):
    options = ChromeOptions()
    # chromedriverを作成
+   options.headless = True
    driver = Chrome(options=options)
    driver.get(URL)
    WebDriverWait(driver, 15).until(EC.presence_of_all_elements_located((By.XPATH,'//*[@id="loginForm:userId"]')))
