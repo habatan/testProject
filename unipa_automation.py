@@ -16,6 +16,7 @@ URL = "https://unipa.u-hyogo.ac.jp/uprx/"
 # driverのオプション設定
 def getInfoFromUnipa(userID:str,PassWord:str):
    options = ChromeOptions()
+   options.headless=True
    # chromedriverを作成
    driver = Chrome(options=options)
    driver.get(URL)
