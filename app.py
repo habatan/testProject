@@ -22,10 +22,8 @@ dotenv.load_dotenv("./_mane/.env")
 
 UserID = os.environ["USERID"]
 PassWord = os.environ["PASS"]
-# LineBotApi(os.environ["CHANNEL_ACCESS_TOKEN"])
-line_bot_api = LineBotApi()
-# WebhookHandler(os.environ["CHANNEL_SECRET"])
-handler = WebhookHandler()
+line_bot_api = LineBotApi(os.environ["CHANNEL_ACCESS_TOKEN"])
+handler = WebhookHandler(os.environ["CHANNEL_SECRET"])
 
 @app.route("/callback", methods=['POST'])
 def callback():
