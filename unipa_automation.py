@@ -13,20 +13,15 @@ import time
 import requests 
 import os 
 import dotenv
-# カレントディレクトのenvfileを使用
-dotenv.load_dotenv("./_info/.env")
+
 
 # sysを使ってuserIDとpassはターミナルの引数にしてもええかも(もしくはjsonファイルかtxtファイルにする)
-UserID = os.environ["USERID"]
-PassWord = os.environ["PASS"]
-token = os.environ["TOKEN"]
 
 # unipaのURL
 URL = "https://unipa.u-hyogo.ac.jp/uprx/"
 # driverのオプション設定
-def main():
+def getInfoFromUnipa(userID:str,PassWord:str):
    options = ChromeOptions()
-   options.headless = False
    # chromedriverを作成
    driver = Chrome(options=options)
    driver.get(URL)
@@ -40,6 +35,10 @@ def main():
    input_element_key2.send_keys(PassWord)
    botton.send_keys(Keys.RETURN)
    time.sleep(2)
+
+   # 曜日を取得
+   week = driver.find_element_by_class_name('dateDisp').text
+   week = re.search(r'\((.+)\)', week).group(1)
 
    # クラスプロファイルを探索しに行く
    driver.find_element_by_xpath('//*[@id="funcForm:j_idt361:j_idt518:j_idt524"]/p').click()
@@ -64,9 +63,9 @@ def main():
    while btn:
       time.sleep(1)
       # 授業名取得
-      name = driver.find_element_by_css_selector('.cpTgtName').text[6:-9].replace("\n","")
-      if name not in class_name:
-         class_name.append(name)
+      lecture = driver.find_element_by_css_selector('.cpTgtName').text[6:-9].replace("\n","")
+      if lecture not in class_name:
+         class_name.append(recture)
          # 未提出選択をclick
          driver.find_element_by_css_selector('.ui-chkbox-icon.ui-icon.ui-icon-blank.ui-c').click()
          # 検索ボタンをクリック
@@ -80,7 +79,7 @@ def main():
          df_list.append(df[1])
          # リストに押し込む
          rest_task.append(num_task[1].text)
-         print(name ," : ",num_task[1].text)
+         print(lecture+": "+num_task[1].text)
       # ラストの場合終了
       if flag ==2:
          driver.close()
@@ -104,38 +103,9 @@ def main():
          else:
             btn = True
             flag=2
-
+            
    # ここからdataframeの整形
-   all_df = pd.concat(df_list)
-   rest_task_df=all_df[(all_df["課題名"]!="対象データがありません。")&(all_df["未提出"]=="○")]
-   rest_task_df.sort_values("課題提出終了日時")
-
-   if rest_task:
-      print("OK!")
-   return rest_task
-
-   # # とりあえず送れるようにする
-   # start = ["課題名 : 課題提出日時"]
-   # for i,v in rest_task_df.iterrows():
-   #    start.append(f'{v["課題名"]} : {v["課題提出終了日時"]}')
-   # text="\n".join(start)
-   # # まとめたtextを送信
-   # print(sendMessage(text))
-
-      
-# linenotify通知関数
-# def sendMessage(msg:str)->str:
-#    # linenotfy通知系apiをたたく
-#    URL="https://notify-api.line.me/api/notify"
-#    payload = {
-#       "message":msg
-#    }
-#    headers={
-#       "Authorization":"Bearer "+token
-#    }
-#    response=requests.post(URL,params=payload,headers=headers)
-#    return response.text
-
-
-if __name__ == "__main__":
-   main()
+   dfs = pd.concat(df_list)
+   rest_task_df=dfs[(dfs["課題名"]!="対象データがありません。")&(dfs["未提出"]=="○")]
+   rest_task_df.sort_values("課題提出終了日時")   
+   return rest_task_df
