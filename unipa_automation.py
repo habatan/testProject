@@ -100,3 +100,26 @@ def getInfoFromUnipa(userID:str,PassWord:str):
    rest_task_df=dfs[(dfs["課題名"]!="対象データがありません。")&(dfs["未提出"]=="○")]
    rest_task_df.sort_values("課題提出終了日時")  
    return rest_task_df
+
+def check_login(userID:str,PassWord:str)->bool:
+   try:
+      options = ChromeOptions()
+      # chromedriverを作成
+      options.headless = True
+      driver = Chrome(options=options)
+      driver.get(URL)
+      WebDriverWait(driver, 15).until(EC.presence_of_all_elements_located((By.XPATH,'//*[@id="loginForm:userId"]')))
+
+      # UserIDやPasswordの入力及び送信
+      input_element_key1 = driver.find_element_by_xpath('//*[@id="loginForm:userId"]')
+      input_element_key2 = driver.find_element_by_xpath('//*[@id="loginForm:password"]')
+      botton = driver.find_element_by_xpath('//*[@id="loginForm:loginButton"]')
+      input_element_key1.send_keys(userID)
+      input_element_key2.send_keys(PassWord)
+      botton.send_keys(Keys.RETURN)
+      time.sleep(2)
+      # クラスプロファイルを探索しに行く
+      driver.find_element_by_xpath('//*[@id="funcForm:j_idt361:j_idt518:j_idt524"]/p').click()
+      return True
+   except:
+      return False
